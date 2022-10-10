@@ -1,26 +1,29 @@
-# Large Tether Transfer Agent
+# Bot deployment alert
 
 ## Description
 
-This agent detects transactions with large Tether transfers
+This bot detects when a forta agent is deployed by Nethermind address
+`0x88dC3a2284FA62e0027d6D6B1fCfDd2141a143b8`
 
 ## Supported Chains
 
-- Ethereum
-- List any other chains this agent can support e.g. BSC
+- Polygon
 
 ## Alerts
 
-Describe each of the type of alerts fired by this agent
-
-- FORTA-1
-  - Fired when a transaction contains a Tether transfer over 10,000 USDT
-  - Severity is always set to "low" (mention any conditions where it could be something else)
-  - Type is always set to "info" (mention any conditions where it could be something else)
-  - Mention any other type of metadata fields included with this alert
+- NM-1
+  - 
 
 ## Test Data
 
 The agent behaviour can be verified with the following transactions:
 
 - 0x3a0f757030beec55c22cbc545dd8a844cbbb2e6019461769e1bc3f3a95d10826 (15,000 USDT)
+
+
+## Brainstorming
+- [Polyscan Nethermind address](https://polygonscan.com/address/0x88dC3a2284FA62e0027d6D6B1fCfDd2141a143b8): called `createAgent`, `disableAgent`, ... functions of [Forta Agents contract](https://polygonscan.com/address/0x61447385b019187daa48e91c55c02af1f1f3f863)
+- check if txEvent = DEPLOYER_ADDRESS (= Nethermind address)
+
+## Pseudo code
+- 

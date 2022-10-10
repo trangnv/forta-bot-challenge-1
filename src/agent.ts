@@ -8,11 +8,33 @@ import {
   FindingType,
 } from "forta-agent";
 
-export const ERC20_TRANSFER_EVENT =
-  "event Transfer(address indexed from, address indexed to, uint256 value)";
-export const TETHER_ADDRESS = "0xdAC17F958D2ee523a2206206994597C13D831ec7";
-export const TETHER_DECIMALS = 6;
-let findingsCount = 0;
+export type HandlerInputs = {
+  NETHERMIND_DEPLOY_ADDRESS: string;
+  FORTA_CONTRACT_ADDRESS: string;
+  CREATE_AGENT_FUNCTION_SIGNATURE: string;
+};
+
+export const NETHERMIND_DEPLOY_ADDRESS = "0x88dC3a2284FA62e0027d6D6B1fCfDd2141a143b8";
+
+export const FORTA_CONTRACT_ADDRESS = "0x61447385b019187daa48e91c55c02af1f1f3f863";
+
+export const CREATE_AGENT_FUNCTION_SIGNATURE =
+  "function createAgent(uint256 agentId, address owner, string metadata, uint256[] chainIds)";
+
+export const handlerInputs: HandlerInputs = {
+    NETHERMIND_DEPLOY_ADDRESS,
+    FORTA_CONTRACT_ADDRESS,
+    CREATE_AGENT_FUNCTION_SIGNATURE,
+  };
+
+// let findingsCount = 0;
+
+function provideHandleTransaction(): HandleTransaction {
+  return async (txEvent: TransactionEvent) => {
+    const findings: Finding[] = [];
+    return findings;
+  }
+}
 
 const handleTransaction: HandleTransaction = async (
   txEvent: TransactionEvent
@@ -56,11 +78,7 @@ const handleTransaction: HandleTransaction = async (
   return findings;
 };
 
-// const handleBlock: HandleBlock = async (blockEvent: BlockEvent) => {
-//   const findings: Finding[] = [];
-//   // detect some block condition
-//   return findings;
-// }
+
 
 export default {
   handleTransaction,
