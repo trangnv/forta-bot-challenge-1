@@ -1,74 +1,143 @@
-import {
-  FindingType,
-  FindingSeverity,
-  Finding,
-  HandleTransaction,
-  createTransactionEvent,
-  ethers,
-} from "forta-agent";
-import agent, {
-  ERC20_TRANSFER_EVENT,
-  TETHER_ADDRESS,
-  TETHER_DECIMALS,
-} from "./agent";
+// import { Finding, FindingSeverity, FindingType, HandleTransaction } from "forta-agent";
+// import { TestTransactionEvent, createAddress } from "forta-agent-tools/lib/test";
+// import { CREATE_AGENT_METHOD, FORTA_PROXY_AGENT_REGISTRY_CORE, providerHandleTransaction } from "./agent";
+// import { Interface } from "ethers/lib/utils";
+// import { BigNumber } from "ethers";
 
-describe("high tether transfer agent", () => {
-  let handleTransaction: HandleTransaction;
-  const mockTxEvent = createTransactionEvent({} as any);
+// const FAKE_DATA_0 = {
+//   agentId: BigNumber.from("1111"),
+//   owner: createAddress("0x"),
+//   metadata: "QmPkydGrmSK2roUJeNzsdC3e7Yetr7zb7UNdmiXyRUM6i7",
+//   chainIds: [BigNumber.from("2222")],
+// };
 
-  beforeAll(() => {
-    handleTransaction = agent.handleTransaction;
-  });
+// const FAKE_DATA_1 = {
+//   agentId: BigNumber.from("3333"),
+//   owner: createAddress("0x1"),
+//   metadata: "QmPkydGrmSK2roUJeNzsdC3e7Yetr7zb7UNdmiXyRUM6i7",
+//   chainIds: [BigNumber.from("4444")],
+// };
 
-  describe("handleTransaction", () => {
-    it("returns empty findings if there are no Tether transfers", async () => {
-      mockTxEvent.filterLog = jest.fn().mockReturnValue([]);
+// const mockHandlerInputs = {
+//   DEPLOYER_ADDRESS: createAddress("0x3"),
+//   FORTA_PROXY_AGENT_REGISTRY_CORE: createAddress("0x4"),
+//   CREATE_AGENT_METHOD,
+// };
 
-      const findings = await handleTransaction(mockTxEvent);
+// describe("New Forta Bot deployment", () => {
+//   let handleTransaction: HandleTransaction;
+//   let fortaProxy = new Interface([CREATE_AGENT_METHOD]);
 
-      expect(findings).toStrictEqual([]);
-      expect(mockTxEvent.filterLog).toHaveBeenCalledTimes(1);
-      expect(mockTxEvent.filterLog).toHaveBeenCalledWith(
-        ERC20_TRANSFER_EVENT,
-        TETHER_ADDRESS
-      );
-    });
+//   beforeAll(() => {
+//     handleTransaction = providerHandleTransaction(mockHandlerInputs);
+//   });
 
-    it("returns a finding if there is a Tether transfer over 10,000", async () => {
-      const mockTetherTransferEvent = {
-        args: {
-          from: "0xabc",
-          to: "0xdef",
-          value: ethers.BigNumber.from("20000000000"), //20k with 6 decimals
-        },
-      };
-      mockTxEvent.filterLog = jest
-        .fn()
-        .mockReturnValue([mockTetherTransferEvent]);
+//   it("returns empty findings if the deployer address not create a new bot", async () => {
+//     const txEvent = new TestTransactionEvent();
+//     const findings = await handleTransaction(txEvent);
+//     expect(findings).toStrictEqual([]);
+//   });
 
-      const findings = await handleTransaction(mockTxEvent);
+//   it("returns findings if there is a bot deployment", async () => {
+//     const txEvent = new TestTransactionEvent()
+//       .setFrom(mockHandlerInputs.DEPLOYER_ADDRESS)
+//       .setTo(mockHandlerInputs.FORTA_PROXY_AGENT_REGISTRY_CORE)
+//       .addTraces({
+//         to: mockHandlerInputs.FORTA_PROXY_AGENT_REGISTRY_CORE,
+//         input: fortaProxy.encodeFunctionData("createAgent", [
+//           FAKE_DATA_0.agentId,
+//           FAKE_DATA_0.owner,
+//           FAKE_DATA_0.metadata,
+//           FAKE_DATA_0.chainIds,
+//         ]),
+//       });
+//     const findings = await handleTransaction(txEvent);
+//     expect(findings).toStrictEqual([
+//       Finding.fromObject({
+//         name: "Create Agent",
+//         description: `Forta bot deployed by Nethermind`,
+//         alertId: "NM-1",
+//         severity: FindingSeverity.Info,
+//         type: FindingType.Info,
+//         metadata: {
+//           agentId: FAKE_DATA_0.agentId.toString(),
+//           owner: FAKE_DATA_0.owner,
+//           metadata: FAKE_DATA_0.metadata,
+//           chainIds: FAKE_DATA_0.chainIds.toString(),
+//         },
+//       }),
+//     ]);
+//   });
 
-      const normalizedValue = mockTetherTransferEvent.args.value.div(
-        10 ** TETHER_DECIMALS
-      );
-      expect(findings).toStrictEqual([
-        Finding.fromObject({
-          name: "High Tether Transfer",
-          description: `High amount of USDT transferred: ${normalizedValue}`,
-          alertId: "FORTA-1",
-          severity: FindingSeverity.Low,
-          type: FindingType.Info,
-          metadata: {
-            to: mockTetherTransferEvent.args.to,
-            from: mockTetherTransferEvent.args.from,
-          },
-        }),
-      ]);
-      expect(mockTxEvent.filterLog).toHaveBeenCalledTimes(1);
-      expect(mockTxEvent.filterLog).toHaveBeenCalledWith(
-        ERC20_TRANSFER_EVENT,
-        TETHER_ADDRESS
-      );
-    });
-  });
-});
+//   it("returns no finding for other deployer", async () => {
+//     const OTHER_DEPLOYER = createAddress("0x1");
+//     const txEvent = new TestTransactionEvent()
+//       .setFrom(OTHER_DEPLOYER)
+//       .setTo(FORTA_PROXY_AGENT_REGISTRY_CORE)
+//       .addTraces({
+//         to: FORTA_PROXY_AGENT_REGISTRY_CORE,
+//         input: fortaProxy.encodeFunctionData("createAgent", [
+//           FAKE_DATA_0.agentId,
+//           FAKE_DATA_0.owner,
+//           FAKE_DATA_0.metadata,
+//           FAKE_DATA_0.chainIds,
+//         ]),
+//       });
+
+//     const findings = await handleTransaction(txEvent);
+//     expect(findings).toStrictEqual([]);
+//   });
+
+//   it("multiple findings for multiple deployment by Nethermind", async () => {
+//     const txEvent = new TestTransactionEvent()
+//       .setFrom(mockHandlerInputs.DEPLOYER_ADDRESS)
+//       .setTo(mockHandlerInputs.FORTA_PROXY_AGENT_REGISTRY_CORE)
+//       .addTraces({
+//         to: mockHandlerInputs.FORTA_PROXY_AGENT_REGISTRY_CORE,
+//         input: fortaProxy.encodeFunctionData("createAgent", [
+//           FAKE_DATA_0.agentId,
+//           FAKE_DATA_0.owner,
+//           FAKE_DATA_0.metadata,
+//           FAKE_DATA_0.chainIds,
+//         ]),
+//       })
+//       .addTraces({
+//         to: mockHandlerInputs.FORTA_PROXY_AGENT_REGISTRY_CORE,
+//         input: fortaProxy.encodeFunctionData("createAgent", [
+//           FAKE_DATA_1.agentId,
+//           FAKE_DATA_1.owner,
+//           FAKE_DATA_1.metadata,
+//           FAKE_DATA_1.chainIds,
+//         ]),
+//       });
+//     const findings = await handleTransaction(txEvent);
+//     expect(findings).toStrictEqual([
+//       Finding.fromObject({
+//         name: "Create Agent",
+//         description: `Forta bot deployed by Nethermind`,
+//         alertId: "NM-1",
+//         severity: FindingSeverity.Info,
+//         type: FindingType.Info,
+//         metadata: {
+//           agentId: FAKE_DATA_0.agentId.toString(),
+//           owner: FAKE_DATA_0.owner,
+//           metadata: FAKE_DATA_0.metadata,
+//           chainIds: FAKE_DATA_0.chainIds.toString(),
+//         },
+//       }),
+//       Finding.fromObject({
+//         name: "Create Agent",
+//         description: `Forta bot deployed by Nethermind`,
+//         alertId: "NM-1",
+//         severity: FindingSeverity.Info,
+//         type: FindingType.Info,
+//         metadata: {
+//           agentId: FAKE_DATA_1.agentId.toString(),
+//           owner: FAKE_DATA_1.owner,
+//           metadata: FAKE_DATA_1.metadata,
+//           chainIds: FAKE_DATA_1.chainIds.toString(),
+//         },
+//       }),
+//     ]);
+//   });
+// });
